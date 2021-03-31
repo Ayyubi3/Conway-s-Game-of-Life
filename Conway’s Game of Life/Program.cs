@@ -5,81 +5,64 @@ namespace Conway_s_Game_of_Life
 {
     class Program
     {
-        static char[,] Buffer = new char[Console.WindowWidth, Console.WindowHeight];
-        static char[,] NextFrame = new char[Buffer.GetLength(0), Buffer.GetLength(1)];
+        static char[,] Buffer;
+        static char[,] NextFrame;
 
         static void Main(string[] args)
         {
-
-            //for (int j = 0; j < Buffer.GetLength(1); j++)
-            //    for (int i = 0; i < Buffer.GetLength(0); i++)
-            //    {
-            //        Buffer[i, j] = '+';
-            //    }
-            Buffer[0 + 1, 0 + 1] = '#';
-            Buffer[2 + 1, 0 + 1] = '#';
-            Buffer[1 + 1, 1 + 1] = '#';
-            Buffer[2 + 1, 1 + 1] = '#';
-            Buffer[1 + 1, 2 + 1] = '#';
+            Console.ReadKey();
+            Buffer = new char[Console.WindowWidth, Console.WindowHeight];
+            NextFrame = new char[Buffer.GetLength(0), Buffer.GetLength(1)];
+            bool runController = true;
+            while (runController)
+            {
+                ConsoleKeyInfo cKI = Console.ReadKey(true);
+                switch (cKI.Key)
+                {
+                    case ConsoleKey.DownArrow:
+                        try { Console.CursorTop++; } catch (Exception) { }
+                        break;
+                    case ConsoleKey.UpArrow:
+                        try { Console.CursorTop--; } catch (Exception) { }
+                        break;
+                    case ConsoleKey.LeftArrow:
+                        try { Console.CursorLeft--; } catch (Exception) { }
+                        break;
+                    case ConsoleKey.RightArrow:
+                        try { Console.CursorLeft++; } catch (Exception) { }
+                        break;
+                    case ConsoleKey.Enter:
+                        Console.Write('#');
+                        Buffer[Console.CursorLeft, Console.CursorTop] = '#';
+                        break;
+                    case ConsoleKey.Escape:
+                        runController = false;
+                        break;
+                }
+            }
+            //Write Buffer to Console
+            for (int j = 0; j < Buffer.GetLength(1); j++)
+                for (int i = 0; i < Buffer.GetLength(0); i++)
+                {
+                    Console.SetCursorPosition(i, j);
+                    Console.Write(Buffer[i, j]);
+                }
 
             while (true)
             {
-                test();
+                Conway();
             }
         }
 
-        private static void test()
+        private static void Conway()
         {
-            Write();
-
-
-            Calculate();
-
-
-            WriteNextFrame();
-
-
-            Array.Copy(NextFrame, Buffer, NextFrame.Length);
-            Array.Clear(NextFrame, 0, NextFrame.Length);
-        }
-
-        private static void WriteNextFrame()
-        {
-            Console.Clear();
-
-            for (int j = 0; j < NextFrame.GetLength(1); j++)
-                for (int i = 0; i < NextFrame.GetLength(0); i++)
-                {
-                    Console.SetCursorPosition(i, j);
-                    Console.Write(NextFrame[i, j]);
-                }
-        }
-
-        private static void Calculate()
-        {
+            //Calculate the next Buffer
             for (int j = 0; j < Buffer.GetLength(1); j++)
                 for (int i = 0; i < Buffer.GetLength(0); i++)
                 {
                     if (Buffer[i, j] == '#')
                     {
-                        int Neighbours = 0;
-
-                        if (Buffer[i, j + 1] == '#')
-                            Neighbours++;
-                        if (Buffer[i, j - 1] == '#')
-                            Neighbours++;
-                        if (Buffer[i + 1, j] == '#')
-                            Neighbours++;
-                        if (Buffer[i - 1, j] == '#')
-                            Neighbours++;
-                        if (Buffer[i - 1, j - 1] == '#')
-                            Neighbours++;
-                        if (Buffer[i + 1, j + 1] == '#')
-                            Neighbours++;
-                        if (Buffer[i - 1, j + 1] == '#')
-                            Neighbours++;
-                        if (Buffer[i + 1, j - 1] == '#')
-                            Neighbours++;
+                        int Neighbours = calculateNeighbours(i, j);
 
                         if (Neighbours == 2 || Neighbours == 3)
                         {
@@ -88,24 +71,7 @@ namespace Conway_s_Game_of_Life
                     }
                     if (Buffer[i, j] == '\0')
                     {
-                        int Neighbours = 0;
-
-                        if (testjp(i, j))
-                            Neighbours++;
-                        if (testjm(i, j))
-                            Neighbours++;
-                        if (testip(i, j))
-                            Neighbours++;
-                        if (testim(i, j))
-                            Neighbours++;
-                        if (testmm(i, j))
-                            Neighbours++;
-                        if (testpp(i, j))
-                            Neighbours++;
-                        if (testpm(i, j))
-                            Neighbours++;
-                        if (testmp(i, j))
-                            Neighbours++;
+                        int Neighbours = calculateNeighbours(i, j);
 
                         if (Neighbours == 3)
                         {
@@ -113,17 +79,21 @@ namespace Conway_s_Game_of_Life
                         }
                     }
                 }
-        }
 
-        private static void Write()
-        {
-            for (int j = 0; j < Buffer.GetLength(1); j++)
-                for (int i = 0; i < Buffer.GetLength(0); i++)
+            //Display the next Buffer
+            Console.Clear();
+
+            for (int j = 0; j < NextFrame.GetLength(1); j++)
+                for (int i = 0; i < NextFrame.GetLength(0); i++)
                 {
                     Console.SetCursorPosition(i, j);
-                    Console.Write(Buffer[i, j]);
+                    Console.Write(NextFrame[i, j]);
                 }
 
+
+
+            Array.Copy(NextFrame, Buffer, NextFrame.Length);
+            Array.Clear(NextFrame, 0, NextFrame.Length);
         }
 
         private static bool testjp(int i, int j)
@@ -260,6 +230,31 @@ namespace Conway_s_Game_of_Life
 
                 return false;
             }
+
+        }
+
+        private static int calculateNeighbours(int i, int j)
+        {
+            int Neighbours = 0;
+
+            if (testjp(i, j))
+                Neighbours++;
+            if (testjm(i, j))
+                Neighbours++;
+            if (testip(i, j))
+                Neighbours++;
+            if (testim(i, j))
+                Neighbours++;
+            if (testmm(i, j))
+                Neighbours++;
+            if (testpp(i, j))
+                Neighbours++;
+            if (testpm(i, j))
+                Neighbours++;
+            if (testmp(i, j))
+                Neighbours++;
+
+            return Neighbours;
 
         }
 
