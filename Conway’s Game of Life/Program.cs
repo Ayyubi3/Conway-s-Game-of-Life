@@ -1,5 +1,16 @@
 ﻿using System;
-using System.Text;
+/*
+ 
+ 
+ 
+ 
+ BUILD IN RELEASE MODE
+ 
+ 
+ 
+ 
+ 
+ */
 class Program
 {
     static char[,] Buffer;
