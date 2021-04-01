@@ -105,11 +105,17 @@ class Program
             }
 
         //Display the next Buffer
+
+        //Either clear console or go through each
+
         Console.Clear();
 
         for (int j = 0; j < NewBuffer.GetLength(1); j++)
             for (int i = 0; i < NewBuffer.GetLength(0); i++)
             {
+                //Console.SetCursorPosition(i, j);
+                //Console.Write(" ");
+
                 Console.SetCursorPosition(i, j);
                 Console.Write(NewBuffer[i, j]);
             }
@@ -120,130 +126,45 @@ class Program
         Array.Clear(NewBuffer, 0, NewBuffer.Length);
     }
 
-    private static bool testjp(int i, int j)
+    private static bool test(int i, int j, string calculation)
     {
         try
         {
-            if (Buffer[i, j + 1] == NodeChar)
+            //m = minus, p = plus, j or i referes to the iterator
+            bool condition = false;
+
+            switch (calculation)
             {
-                return true;
+                case "jp":
+                    condition = Buffer[i, j + 1] == NodeChar;
+                    break;
+                case "jm":
+                    condition = Buffer[i, j - 1] == NodeChar;
+                    break;
+                case "im":
+                    condition = Buffer[i - 1, j] == NodeChar;
+                    break;
+                case "ip":
+                    condition = Buffer[i + 1, j] == NodeChar;
+                    break;
+                case "mm":
+                    condition = Buffer[i - 1, j - 1] == NodeChar;
+                        break;
+                case "pp":
+                    condition = Buffer[i + 1, j + 1] == NodeChar;
+                    break;
+                case "pm":
+                    condition = Buffer[i + 1, j - 1] == NodeChar;
+                    break;
+                case "mp":
+                    condition = Buffer[i - 1, j + 1] == NodeChar;
+                    break;
+                default:
+                    Console.WriteLine("Error");
+                    break;
             }
-            else return false;
-        }
-        catch (Exception)
-        {
 
-            return false;
-        }
-
-    }
-    private static bool testjm(int i, int j)
-    {
-
-        try
-        {
-            if (Buffer[i, j - 1] == NodeChar)
-            {
-                return true;
-            }
-            else return false;
-        }
-        catch (Exception)
-        {
-
-            return false;
-        }
-    }
-    private static bool testim(int i, int j)
-    {
-
-        try
-        {
-            if (Buffer[i - 1, j] == NodeChar)
-            {
-                return true;
-            }
-            else return false;
-        }
-        catch (Exception)
-        {
-
-            return false;
-        }
-    }
-    private static bool testip(int i, int j)
-    {
-
-        try
-        {
-            if (Buffer[i + 1, j] == NodeChar)
-            {
-                return true;
-            }
-            else return false;
-        }
-        catch (Exception)
-        {
-
-            return false;
-        }
-    }
-    private static bool testmm(int i, int j)
-    {
-        try
-        {
-            if (Buffer[i - 1, j - 1] == NodeChar)
-            {
-                return true;
-            }
-            else return false;
-        }
-        catch (Exception)
-        {
-
-            return false;
-        }
-
-    }
-    private static bool testpp(int i, int j)
-    {
-        try
-        {
-            if (Buffer[i + 1, j + 1] == NodeChar)
-            {
-                return true;
-            }
-            else return false;
-        }
-        catch (Exception)
-        {
-
-            return false;
-        }
-
-    }
-    private static bool testpm(int i, int j)
-    {
-        try
-        {
-            if (Buffer[i + 1, j - 1] == NodeChar)
-            {
-                return true;
-            }
-            else return false;
-        }
-        catch (Exception)
-        {
-
-            return false;
-        }
-
-    }
-    private static bool testmp(int i, int j)
-    {
-        try
-        {
-            if (Buffer[i - 1, j + 1] == NodeChar)
+            if (condition)
             {
                 return true;
             }
@@ -261,21 +182,21 @@ class Program
     {
         int Neighbours = 0;
 
-        if (testjp(i, j))
+        if (test(i, j, "jp"))
             Neighbours++;
-        if (testjm(i, j))
+        if (test(i, j, "jm"))
             Neighbours++;
-        if (testip(i, j))
+        if (test(i, j, "ip"))
             Neighbours++;
-        if (testim(i, j))
+        if (test(i, j, "im"))
             Neighbours++;
-        if (testmm(i, j))
+        if (test(i, j, "mm"))
             Neighbours++;
-        if (testpp(i, j))
+        if (test(i, j, "pp"))
             Neighbours++;
-        if (testpm(i, j))
+        if (test(i, j, "pm"))
             Neighbours++;
-        if (testmp(i, j))
+        if (test(i, j, "mp"))
             Neighbours++;
 
         return Neighbours;
