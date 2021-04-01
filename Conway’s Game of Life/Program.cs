@@ -1,265 +1,285 @@
 ﻿using System;
 using System.Text;
-
-namespace Conway_s_Game_of_Life
+class Program
 {
-    class Program
+    static char[,] Buffer;
+    static char[,] NewBuffer;
+
+    public static char NodeChar = '#';
+
+    static void Main(string[] args)
     {
-        static char[,] Buffer;
-        static char[,] NextFrame;
+        Console.Title = "Conway´s Game of Life";
 
-        static void Main(string[] args)
+        Console.WriteLine("Adjust font size and window size");
+        Console.WriteLine("Press any key to continue");
+        Console.ReadKey();
+
+        Console.Clear();
+
+        Buffer = new char[Console.WindowWidth, Console.WindowHeight];
+        NewBuffer = new char[Buffer.GetLength(0), Buffer.GetLength(1)];
+
+        Console.WriteLine("Arrow keys to move cursor and Enter to set node");
+        Console.WriteLine("Escape to start simulation");
+
+
+        Console.CursorVisible = true;
+
+        //Controller to set nodes
+        bool runController = true;
+        while (runController)
         {
-            Console.ReadKey();
-            Buffer = new char[Console.WindowWidth, Console.WindowHeight];
-            NextFrame = new char[Buffer.GetLength(0), Buffer.GetLength(1)];
-            bool runController = true;
-            while (runController)
+            ConsoleKeyInfo cKI = Console.ReadKey(true);
+            switch (cKI.Key)
             {
-                ConsoleKeyInfo cKI = Console.ReadKey(true);
-                switch (cKI.Key)
-                {
-                    case ConsoleKey.DownArrow:
-                        try { Console.CursorTop++; } catch (Exception) { }
-                        break;
-                    case ConsoleKey.UpArrow:
-                        try { Console.CursorTop--; } catch (Exception) { }
-                        break;
-                    case ConsoleKey.LeftArrow:
-                        try { Console.CursorLeft--; } catch (Exception) { }
-                        break;
-                    case ConsoleKey.RightArrow:
-                        try { Console.CursorLeft++; } catch (Exception) { }
-                        break;
-                    case ConsoleKey.Enter:
-                        Console.Write('#');
-                        Buffer[Console.CursorLeft, Console.CursorTop] = '#';
-                        break;
-                    case ConsoleKey.Escape:
-                        runController = false;
-                        break;
-                }
-            }
-            //Write Buffer to Console
-            for (int j = 0; j < Buffer.GetLength(1); j++)
-                for (int i = 0; i < Buffer.GetLength(0); i++)
-                {
-                    Console.SetCursorPosition(i, j);
-                    Console.Write(Buffer[i, j]);
-                }
-
-            while (true)
-            {
-                Conway();
-            }
-        }
-
-        private static void Conway()
-        {
-            //Calculate the next Buffer
-            for (int j = 0; j < Buffer.GetLength(1); j++)
-                for (int i = 0; i < Buffer.GetLength(0); i++)
-                {
-                    if (Buffer[i, j] == '#')
+                case ConsoleKey.DownArrow:
+                    try { Console.CursorTop++; } catch (Exception) { }
+                    break;
+                case ConsoleKey.UpArrow:
+                    try { Console.CursorTop--; } catch (Exception) { }
+                    break;
+                case ConsoleKey.LeftArrow:
+                    try { Console.CursorLeft--; } catch (Exception) { }
+                    break;
+                case ConsoleKey.RightArrow:
+                    try { Console.CursorLeft++; } catch (Exception) { }
+                    break;
+                case ConsoleKey.Enter:
                     {
-                        int Neighbours = calculateNeighbours(i, j);
+                        //A way to prevent ConsoleCursor to move to the right after writing NodeChar
+                        int x = Console.CursorLeft;
+                        int y = Console.CursorTop;
+                        Console.Write(NodeChar);
+                        Console.SetCursorPosition(x, y);
 
-                        if (Neighbours == 2 || Neighbours == 3)
-                        {
-                            NextFrame[i, j] = '#';
-                        }
+                        //Add to Buffer
+                        Buffer[Console.CursorLeft, Console.CursorTop] = NodeChar;
                     }
-                    if (Buffer[i, j] == '\0')
+                    break;
+                case ConsoleKey.Escape:
+                    runController = false;
+                    break;
+            }
+        }
+
+        Console.Clear();
+
+        Console.CursorVisible = false;
+
+        while (true)
+        {
+            Conway();
+        }
+    }
+
+    private static void Conway()
+    {
+        //Calculate the next Buffer
+        for (int j = 0; j < Buffer.GetLength(1); j++)
+            for (int i = 0; i < Buffer.GetLength(0); i++)
+            {
+
+                //Go thorugh each node in Buffer and check rule
+                if (Buffer[i, j] == NodeChar)
+                {
+                    int Neighbours = calculateNeighbours(i, j);
+
+                    if (Neighbours == 2 || Neighbours == 3)
                     {
-                        int Neighbours = calculateNeighbours(i, j);
+                        //Add to if rules allow it
+                        NewBuffer[i, j] = NodeChar;
+                    }
+                }
+                if (Buffer[i, j] == '\0')
+                {
+                    int Neighbours = calculateNeighbours(i, j);
 
-                        if (Neighbours == 3)
-                        {
-                            NextFrame[i, j] = '#';
-                        }
+                    if (Neighbours == 3)
+                    {
+                        //Add to if rules allow it
+                        NewBuffer[i, j] = NodeChar;
                     }
                 }
 
-            //Display the next Buffer
-            Console.Clear();
+            }
 
-            for (int j = 0; j < NextFrame.GetLength(1); j++)
-                for (int i = 0; i < NextFrame.GetLength(0); i++)
-                {
-                    Console.SetCursorPosition(i, j);
-                    Console.Write(NextFrame[i, j]);
-                }
+        //Display the next Buffer
+        Console.Clear();
+
+        for (int j = 0; j < NewBuffer.GetLength(1); j++)
+            for (int i = 0; i < NewBuffer.GetLength(0); i++)
+            {
+                Console.SetCursorPosition(i, j);
+                Console.Write(NewBuffer[i, j]);
+            }
 
 
+        //
+        Array.Copy(NewBuffer, Buffer, NewBuffer.Length);
+        Array.Clear(NewBuffer, 0, NewBuffer.Length);
+    }
 
-            Array.Copy(NextFrame, Buffer, NextFrame.Length);
-            Array.Clear(NextFrame, 0, NextFrame.Length);
-        }
-
-        private static bool testjp(int i, int j)
+    private static bool testjp(int i, int j)
+    {
+        try
         {
-            try
+            if (Buffer[i, j + 1] == NodeChar)
             {
-                if (Buffer[i, j + 1] == '#')
-                {
-                    return true;
-                }
-                else return false;
+                return true;
             }
-            catch (Exception)
-            {
-
-                return false;
-            }
-
+            else return false;
         }
-        private static bool testjm(int i, int j)
+        catch (Exception)
         {
 
-            try
-            {
-                if (Buffer[i, j - 1] == '#')
-                {
-                    return true;
-                }
-                else return false;
-            }
-            catch (Exception)
-            {
-
-                return false;
-            }
+            return false;
         }
-        private static bool testim(int i, int j)
+
+    }
+    private static bool testjm(int i, int j)
+    {
+
+        try
+        {
+            if (Buffer[i, j - 1] == NodeChar)
+            {
+                return true;
+            }
+            else return false;
+        }
+        catch (Exception)
         {
 
-            try
-            {
-                if (Buffer[i - 1, j] == '#')
-                {
-                    return true;
-                }
-                else return false;
-            }
-            catch (Exception)
-            {
-
-                return false;
-            }
+            return false;
         }
-        private static bool testip(int i, int j)
+    }
+    private static bool testim(int i, int j)
+    {
+
+        try
+        {
+            if (Buffer[i - 1, j] == NodeChar)
+            {
+                return true;
+            }
+            else return false;
+        }
+        catch (Exception)
         {
 
-            try
-            {
-                if (Buffer[i + 1, j] == '#')
-                {
-                    return true;
-                }
-                else return false;
-            }
-            catch (Exception)
-            {
-
-                return false;
-            }
+            return false;
         }
-        private static bool testmm(int i, int j)
+    }
+    private static bool testip(int i, int j)
+    {
+
+        try
         {
-            try
+            if (Buffer[i + 1, j] == NodeChar)
             {
-                if (Buffer[i - 1, j - 1] == '#')
-                {
-                    return true;
-                }
-                else return false;
+                return true;
             }
-            catch (Exception)
-            {
-
-                return false;
-            }
-
+            else return false;
         }
-        private static bool testpp(int i, int j)
+        catch (Exception)
         {
-            try
-            {
-                if (Buffer[i + 1, j + 1] == '#')
-                {
-                    return true;
-                }
-                else return false;
-            }
-            catch (Exception)
-            {
 
-                return false;
-            }
-
+            return false;
         }
-        private static bool testpm(int i, int j)
+    }
+    private static bool testmm(int i, int j)
+    {
+        try
         {
-            try
+            if (Buffer[i - 1, j - 1] == NodeChar)
             {
-                if (Buffer[i + 1, j - 1] == '#')
-                {
-                    return true;
-                }
-                else return false;
+                return true;
             }
-            catch (Exception)
-            {
-
-                return false;
-            }
-
+            else return false;
         }
-        private static bool testmp(int i, int j)
+        catch (Exception)
         {
-            try
-            {
-                if (Buffer[i - 1, j + 1] == '#')
-                {
-                    return true;
-                }
-                else return false;
-            }
-            catch (Exception)
-            {
 
-                return false;
-            }
-
+            return false;
         }
 
-        private static int calculateNeighbours(int i, int j)
+    }
+    private static bool testpp(int i, int j)
+    {
+        try
         {
-            int Neighbours = 0;
+            if (Buffer[i + 1, j + 1] == NodeChar)
+            {
+                return true;
+            }
+            else return false;
+        }
+        catch (Exception)
+        {
 
-            if (testjp(i, j))
-                Neighbours++;
-            if (testjm(i, j))
-                Neighbours++;
-            if (testip(i, j))
-                Neighbours++;
-            if (testim(i, j))
-                Neighbours++;
-            if (testmm(i, j))
-                Neighbours++;
-            if (testpp(i, j))
-                Neighbours++;
-            if (testpm(i, j))
-                Neighbours++;
-            if (testmp(i, j))
-                Neighbours++;
-
-            return Neighbours;
-
+            return false;
         }
 
+    }
+    private static bool testpm(int i, int j)
+    {
+        try
+        {
+            if (Buffer[i + 1, j - 1] == NodeChar)
+            {
+                return true;
+            }
+            else return false;
+        }
+        catch (Exception)
+        {
 
+            return false;
+        }
 
+    }
+    private static bool testmp(int i, int j)
+    {
+        try
+        {
+            if (Buffer[i - 1, j + 1] == NodeChar)
+            {
+                return true;
+            }
+            else return false;
+        }
+        catch (Exception)
+        {
+
+            return false;
+        }
+
+    }
+
+    private static int calculateNeighbours(int i, int j)
+    {
+        int Neighbours = 0;
+
+        if (testjp(i, j))
+            Neighbours++;
+        if (testjm(i, j))
+            Neighbours++;
+        if (testip(i, j))
+            Neighbours++;
+        if (testim(i, j))
+            Neighbours++;
+        if (testmm(i, j))
+            Neighbours++;
+        if (testpp(i, j))
+            Neighbours++;
+        if (testpm(i, j))
+            Neighbours++;
+        if (testmp(i, j))
+            Neighbours++;
+
+        return Neighbours;
 
     }
 }
+
