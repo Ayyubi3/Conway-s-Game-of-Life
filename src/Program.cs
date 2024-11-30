@@ -1,16 +1,5 @@
 ﻿using System;
-/*
- 
- 
- 
- 
- BUILD IN RELEASE MODE
- Ola
- 
- 
- 
- 
- */
+
 class Program
 {
     static char[,] Buffer;
@@ -22,7 +11,7 @@ class Program
     {
         Console.Title = "Conway´s Game of Life";
 
-        Console.WriteLine("Adjust font size and window size");
+        Console.WriteLine("Make windows Fullscreen");
         Console.WriteLine("Press any key to continue");
         Console.ReadKey();
 
@@ -33,6 +22,9 @@ class Program
 
         Console.WriteLine("Arrow keys to move cursor and Enter to set node");
         Console.WriteLine("Escape to start simulation");
+        Console.WriteLine("Its pretty slow dont wonder");
+
+
 
 
         Console.CursorVisible = true;
@@ -160,7 +152,7 @@ class Program
                     break;
                 case "mm":
                     condition = Buffer[i - 1, j - 1] == NodeChar;
-                        break;
+                    break;
                 case "pp":
                     condition = Buffer[i + 1, j + 1] == NodeChar;
                     break;
